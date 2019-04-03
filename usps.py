@@ -126,6 +126,3 @@ class UspsApi(object):
 
         self._session.close()
         return(status)
-
-
-usps = UspsApi()
