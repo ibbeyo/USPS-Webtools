@@ -1,6 +1,5 @@
 import inspect
-from bs4 import BeautifulSoup, re
-from urllib.parse import quote
+from bs4 import BeautifulSoup
 import requests
 
 
