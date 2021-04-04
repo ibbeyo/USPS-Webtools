@@ -20,19 +20,19 @@ class PackageTracking(object):
         self._expected_delivery = self._html.find('div', attrs={'class': 'expected_delivery'})
         self._delivery_status   = self._html.find('div', attrs={'class': 'delivery_status'})
         
-        self._status = None
+        self._status = self._delivery_status.find('h2')
         self._status_last_updated = self._delivery_status.find('div', attrs={'class': 'status_feed'})
-        self._eta = None
-        self._eta_status = None
+        self._eta = self._expected_delivery.find('span', attrs={'class': 'eta_snip'})
+        self._eta_status = self._expected_delivery.find('p')
 
 
     @property
     def status(self) -> Tuple[str, None]:
         "Get the status of a package."
         
-        if self._status: return self._status
+        if isinstance(self._status, bs4types.Tag):
+            self._status = self._status.get_text().strip()
 
-        self._status = self._delivery_status.find('h2').get_text().strip()
         return self._status
     
 
@@ -53,11 +53,8 @@ class PackageTracking(object):
     def eta(self) -> Tuple[str, None]:
         "Get the expected delivery DATE for the package."
 
-        if self._eta: return self._eta
-
-        snippet = self._expected_delivery.find('span', attrs={'class': 'eta_snip'})
-
-        if snippet: self._eta = snippet.get_text()
+        if isinstance(self._eta, bs4types.Tag):
+            self._eta = self._eta.get_text()
         
         return self._eta
 
@@ -66,9 +63,9 @@ class PackageTracking(object):
     def eta_status(self) -> Tuple[str, None]:
         "Get the expected delivery STATUS for the package"
 
-        if self._eta_status: return self._eta_status
+        if isinstance(self._eta_status, bs4types.Tag):
+            self._eta_status = self._eta_status.get_text().strip()
 
-        self._eta_status = self._expected_delivery.find('p').get_text().strip()
         return self._eta_status
 
     
