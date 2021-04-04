@@ -1,5 +1,5 @@
 # UspsApi
-Simple USPS API using request.
+Simple USPS API. No Authentication Required.
 
 Sample Usage:
 

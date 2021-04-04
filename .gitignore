@@ -1,0 +1,7 @@
+#python venv
+.venv/
+.vscode/
+
+#pypi dist
+dist/
+reddify.egg-info/
