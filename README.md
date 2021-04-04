@@ -1,31 +1,33 @@
-# UspsApi
-Simple USPS API. No Authentication Required.
+# USPS-Webtools
+Simple API for the USPS Webtools. No Authentication Required.
 
-Sample Usage:
+## Usage
 
-``` {.sourceCode .python}
->>> from UspsApi.usps import UspsApi
->>> usps = UspsApi()
+Package Tracking Example:
 
-#Get Address Verification
->>> usps.zipByAddress(address1="1745 Fairfield Road", city="Milwaukee", state="WI", zip=53202)
+```python
+from usps_webtools import PackageTracking
 
-{'resultStatus': 'SUCCESS', 'addressList': [{'addressLine1': '1745 W FAIRFIELD CT', 'city': 'MILWAUKEE', 'state': 'WI', 'zip5': '53209',
-'zip4': '', 'carrierRoute': 'C041', 'countyName': 'MILWAUKEE', 'cmar': 'N', 'recordType': 'S', 'dpvConfirmation': 'N', 'defaultFlag': '',
-'defaultInd': 'E'}]}
+package = PackageTracking('YOUR_TRACKING_NUMBER')
 
-#Get Zipcodes in by city and state
->>> usps.zipByCityState(city="Milwaukee", state="WI")
+package.status
+package.status_last_updated
+package.eta
+package.eta_status
+package.as_dict()
 
-{'resultStatus': 'SUCCESS', 'city': 'MILWAUKEE', 'state': 'WI', 'zipList': [{'zip5': '53201', 'recordType': 'PO BOX'}, {'zip5': '53202'},.....
+```
 
-#Get City by Zipcode
->>> usps.cityByZip(zip="53202")
+ZipTools Lookup Example:
 
-{'resultStatus': 'SUCCESS', 'zip5': '53202', 'defaultCity': 'MILWAUKEE', 'defaultState': 'WI',
-'defaultRecordType': 'STANDARD', 'citiesList': [], 'nonAcceptList': []}
+```python
+from usps_webtools import zipByCityState, zipByAddress, cityByZip
 
-#Track a Package
->>> usps.trackPackage(tracking_number="000000000000")
+zipByAddress('376 Fairfield St', 'New Lenox', 'IL', '60451')
 
-'The tracking number may be incorrect or the status update is not yet available. Please verify your tracking number and try again later., , ,
+zipByCityState('New Lenox', 'IL')
+
+cityByZip('60451')
+
+
+```
