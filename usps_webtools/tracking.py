@@ -1,4 +1,3 @@
-import enum
 import requests
 from typing import Tuple
 from fake_useragent import UserAgent
