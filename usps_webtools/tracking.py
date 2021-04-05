@@ -67,6 +67,7 @@ class PackageTracking(object):
     @property
     def history(self) -> Tuple[list, None]:
         "Gets the package tracking history."
+        
         if isinstance(self._history, bs4types.Tag):
             history = self._history.contents.copy()
             string = []; self._history = []
