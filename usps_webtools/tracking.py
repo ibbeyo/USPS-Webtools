@@ -23,7 +23,7 @@ class PackageTracking(object):
 
     @property
     def status(self) -> Tuple[str, None]:
-        "Get the status of a package."
+        "Gets the status of a package."
         
         if isinstance(self._status, bs4types.Tag):
             self._status = self._status.get_text().strip()
@@ -33,7 +33,7 @@ class PackageTracking(object):
 
     @property
     def status_last_updated(self) -> Tuple[str, None]:
-        "Get the date of the most recent status update"
+        "Gets the date of the most recent status update"
 
         if isinstance(self._status_last_updated, bs4types.Tag):
             element = self._status_last_updated.find('p')
@@ -46,7 +46,7 @@ class PackageTracking(object):
 
     @property
     def expected_delivery_date(self) -> Tuple[str, None]:
-        "Get the expected delivery DATE for the package."
+        "Gets the expected delivery DATE for the package."
 
         if isinstance(self._expected_delivery_date, bs4types.Tag):
              self._expected_delivery_date =  self._expected_delivery_date.get_text()
@@ -56,7 +56,7 @@ class PackageTracking(object):
 
     @property
     def expected_delivery_status(self) -> Tuple[str, None]:
-        "Get the expected delivery STATUS for the package"
+        "Gets the expected delivery STATUS for the package"
 
         if isinstance(self._expected_delivery_status, bs4types.Tag):
             self._expected_delivery_status = self._expected_delivery_status.get_text().strip()
@@ -66,6 +66,7 @@ class PackageTracking(object):
     
     @property
     def history(self) -> Tuple[list, None]:
+        "Gets the package tracking history."
         if isinstance(self._history, bs4types.Tag):
             history = self._history.contents.copy()
             string = []; self._history = []
@@ -86,6 +87,8 @@ class PackageTracking(object):
 
 
     def refresh(self):
+        "Gets most recent package tracking data from USPS."
+
         response = requests.get(
             f'https://tools.usps.com/go/TrackConfirmAction?tLabels={self.tracking_number}',
             allow_redirects=False,
