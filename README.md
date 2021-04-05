@@ -12,8 +12,9 @@ package = PackageTracking('YOUR_TRACKING_NUMBER')
 
 package.status
 package.status_last_updated
-package.eta
-package.eta_status
+package.expected_delivery_date
+package.expected_delivery_status
+package.history
 package.as_dict()
 
 ```
