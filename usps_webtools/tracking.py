@@ -1,3 +1,4 @@
+import enum
 import requests
 from typing import Tuple
 from fake_useragent import UserAgent
@@ -6,24 +7,18 @@ from bs4 import BeautifulSoup, re, element as bs4types
 
 class PackageTracking(object):
     def __init__(self, tracking_number) -> None:
+        super().__init__()
         "Track a package using the tracking number provided by USPS"
 
-        super().__init__()
-        response = requests.get(
-            f'https://tools.usps.com/go/TrackConfirmAction?tLabels={tracking_number}',
-            allow_redirects=False,
-            headers={'User-Agent': UserAgent().random}
-        )
+        self.tracking_number        = tracking_number
+        self._expected_delivery     = None
+        self._delivery_status       = None
+        self._status                = None
+        self._status_last_updated   = None
+        self._eta                   = None
+        self._eta_status            = None
 
-        soup = BeautifulSoup(response.content, 'html.parser')
-        self._html = soup.find('div', id='tracked-numbers')
-        self._expected_delivery = self._html.find('div', attrs={'class': 'expected_delivery'})
-        self._delivery_status   = self._html.find('div', attrs={'class': 'delivery_status'})
-        
-        self._status = self._delivery_status.find('h2')
-        self._status_last_updated = self._delivery_status.find('div', attrs={'class': 'status_feed'})
-        self._eta = self._expected_delivery.find('span', attrs={'class': 'eta_snip'})
-        self._eta_status = self._expected_delivery.find('p')
+        self.refresh()
 
 
     @property
@@ -50,31 +45,82 @@ class PackageTracking(object):
             
 
     @property
-    def eta(self) -> Tuple[str, None]:
+    def expected_delivery_date(self) -> Tuple[str, None]:
         "Get the expected delivery DATE for the package."
 
-        if isinstance(self._eta, bs4types.Tag):
-            self._eta = self._eta.get_text()
+        if isinstance(self._expected_delivery_date, bs4types.Tag):
+             self._expected_delivery_date =  self._expected_delivery_date.get_text()
         
-        return self._eta
+        return  self._expected_delivery_date
 
 
     @property
-    def eta_status(self) -> Tuple[str, None]:
+    def expected_delivery_status(self) -> Tuple[str, None]:
         "Get the expected delivery STATUS for the package"
 
-        if isinstance(self._eta_status, bs4types.Tag):
-            self._eta_status = self._eta_status.get_text().strip()
+        if isinstance(self._expected_delivery_status, bs4types.Tag):
+            self._expected_delivery_status = self._expected_delivery_status.get_text().strip()
 
-        return self._eta_status
+        return self._expected_delivery_status
 
     
+    @property
+    def history(self) -> Tuple[list, None]:
+        if isinstance(self._history, bs4types.Tag):
+            history = self._history.contents.copy()
+            string = []; self._history = []
+            for x in history:
+                if isinstance(x, bs4types.Tag):
+                    if x.name == 'hr':
+                        event = re.sub(r'[\t\n\r]*', '', ' '.join(string))
+                        event = event.strip().split('  ')
+                        self._history.append({
+                            'date': event[0],
+                            'status': event[1],
+                            'location': event[2] if len(event) >= 3 else None
+                        })
+                        string.clear()
+                    else:
+                        string.append(x.get_text().replace('\xa0', ' '))
+        return self._history
+
+
+    def refresh(self):
+        response = requests.get(
+            f'https://tools.usps.com/go/TrackConfirmAction?tLabels={self.tracking_number}',
+            allow_redirects=False,
+            headers={'User-Agent': UserAgent().random}
+        )
+
+        soup = BeautifulSoup(response.content, 'html.parser')
+        html = soup.find('div', id='tracked-numbers')
+
+        delivery_status = html.find('div', attrs={'class': 'delivery_status'})
+        self._status = delivery_status.find('h2')
+        self._status_last_updated = delivery_status.find('div', attrs={'class': 'status_feed'})
+
+        expected_delivery = html.find('div', attrs={'class': 'expected_delivery'})
+        self._expected_delivery_date = expected_delivery.find('span', attrs={'class': 'eta_snip'})
+        self._expected_delivery_status = expected_delivery.find('p')
+
+        self._history = html.find('div', attrs={'class': 'panel-actions-content thPanalAction'})
+    
+
     def as_dict(self) -> dict:
         "Returns all package tracking information as a dictionary."
 
         return {
-            'package_status'        : self.status,
-            'package_status_updated': self.status_last_updated,
-            'package_eta'           : self.eta,
-            'package_eta_status'    : self.eta_status
+            'status': self.status,
+            'status_last_updated': self.status_last_updated,
+            'expected_delivery': {
+                'date': self.expected_delivery_date,
+                'status': self.expected_delivery_status
+            },
+            'history': {
+                'events': self.history
+            },
+            'product_info': {
+                'postal_product': '',
+                'features': ''
+            }
         }
