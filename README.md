@@ -1,9 +1,9 @@
 # USPS-Webtools
 Simple API for the USPS Webtools. No Authentication Required.
 
-## Usage
+## Module Usage
 
-Package Tracking Example:
+###### Package Tracking Sample:
 
 ```python
 from usps_webtools import PackageTracking
@@ -18,7 +18,7 @@ package.as_dict()
 
 ```
 
-ZipTools Lookup Example:
+###### ZipTools Lookup Sample:
 
 ```python
 from usps_webtools import zipByCityState, zipByAddress, cityByZip
