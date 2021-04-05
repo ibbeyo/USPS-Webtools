@@ -1,6 +1,10 @@
 Change Log
 ==================
 
-0.0.1 (04/03/2020)
+(04/03/2020)
 ------------------
 --- Updated everything
+
+(04/05/2020)
+------------------
+--- Added Tracking History to PackageTracking
