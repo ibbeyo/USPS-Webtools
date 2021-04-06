@@ -15,6 +15,7 @@ package.status_last_updated
 package.expected_delivery_date
 package.expected_delivery_status
 package.history
+package.product_info
 package.as_dict()
 
 ```
