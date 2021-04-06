@@ -1,3 +1,4 @@
+import bs4
 import requests
 from typing import Tuple
 from fake_useragent import UserAgent
@@ -64,18 +65,18 @@ class PackageTracking(object):
 
     
     @property
-    def history(self) -> Tuple[list, None]:
+    def history(self) -> Tuple[dict, None]:
         "Gets the package tracking history."
         
         if isinstance(self._history, bs4types.Tag):
             history = self._history.contents.copy()
-            string = []; self._history = []
+            string = []; self._history = {'events' : []}
             for x in history:
                 if isinstance(x, bs4types.Tag):
                     if x.name == 'hr':
                         event = re.sub(r'[\t\n\r]*', '', ' '.join(string))
                         event = event.strip().split('  ')
-                        self._history.append({
+                        self._history['events'].append({
                             'date': event[0],
                             'status': event[1],
                             'location': event[2] if len(event) >= 3 else None
@@ -84,6 +85,17 @@ class PackageTracking(object):
                     else:
                         string.append(x.get_text().replace('\xa0', ' '))
         return self._history
+
+
+    @property
+    def product_info(self):
+        if isinstance(self._product_info, bs4types.Tag):
+            html = self._product_info.find('li').get_text()
+            self._product_info = {
+                'postal_product': re.sub(r'[\t\n\r]*', '', html).split(':')[1]
+            }
+
+        return self._product_info
 
 
     def refresh(self):
@@ -107,7 +119,8 @@ class PackageTracking(object):
         self._expected_delivery_status = expected_delivery.find('p')
 
         self._history = html.find('div', attrs={'class': 'panel-actions-content thPanalAction'})
-    
+        self._product_info = html.find('div', attrs={'class': 'panel-actions-content product-information-content'})
+
 
     def as_dict(self) -> dict:
         "Returns all package tracking information as a dictionary."
@@ -119,11 +132,6 @@ class PackageTracking(object):
                 'date': self.expected_delivery_date,
                 'status': self.expected_delivery_status
             },
-            'history': {
-                'events': self.history
-            },
-            'product_info': {
-                'postal_product': '',
-                'features': ''
-            }
+            'history': self.history,
+            'product_info': self.product_info
         }
