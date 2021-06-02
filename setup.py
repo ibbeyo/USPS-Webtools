@@ -34,6 +34,6 @@ setup(
         'idna==2.10',
         'requests==2.25.1',
         'soupsieve==2.2.1',
-        'urllib3==1.26.4'
+        'urllib3==1.26.5'
     ]
 )
