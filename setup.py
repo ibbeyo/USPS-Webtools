@@ -28,7 +28,7 @@ setup(
     install_requires=[
         'beautifulsoup4==4.9.3',
         'bs4==0.0.1',
-        'certifi==2020.12.5',
+        'certifi==2022.12.7',
         'chardet==4.0.0',
         'fake-useragent==0.1.11',
         'idna==2.10',
